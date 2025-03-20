@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { redirect, useRouter } from "next/navigation";
 
 export default function Page() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -17,8 +19,30 @@ export default function Page() {
   const handleFormDataSubmit = async (e) => {
     e.preventDefault();
     const { data } = await axios.post("/api/login-api", formData);
-    console.log(data, "data from api response");
+    localStorage.setItem("authToken", data?.token);
+    localStorage.setItem("userId", data?.userId);
+    setFormData({
+      email: "",
+      password: "",
+    });
+    alert("login successful");
+    return router.push("/");
   };
+
+  const [userLoggedIn, setUserLoggedIn] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        setUserLoggedIn(true);
+      }
+    }
+  }, []);
+
+  if (userLoggedIn) {
+    return redirect("/");
+  }
 
   return (
     <div className="max-w-4xl mx-auto bg-white border mt-4 p-3 min-h-[40vh]">

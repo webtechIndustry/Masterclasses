@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { redirect } from "next/navigation";
 
 export default function Page() {
   const [formData, setFormData] = useState({
@@ -20,6 +21,21 @@ export default function Page() {
     const { data } = await axios.post("/api/create-user", formData);
     console.log(data, "data from api response");
   };
+
+  const [userLoggedIn, setUserLoggedIn] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        setUserLoggedIn(true);
+      }
+    }
+  }, []);
+
+  if (userLoggedIn) {
+    return redirect("/");
+  }
 
   return (
     <div className="max-w-4xl mx-auto bg-white border mt-4 p-3 min-h-[40vh]">
